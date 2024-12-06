@@ -1,0 +1,9 @@
+certifi>=2024.8.30
+chardet>=5.2.0
+Deprecated>=1.2.15
+idna>=3.10
+PyGithub>=2.5.0
+PyJWT>=2.10.1
+requests>=2.23.0
+urllib3>=2.2.3
+wrapt>=1.17.0
