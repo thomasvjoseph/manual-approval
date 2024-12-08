@@ -1,0 +1,37 @@
+name: 'Manual Approval'
+description: 'This action will allow you to manually approve an issue by yes or no'
+author: 'Thomas Joseph'
+
+inputs:
+  GITHUB_TOKEN:
+    description: "Token for authenticating GitHub API"
+    required: true
+  INPUT_TITLE:
+    description: "Title of the issue"
+    required: true
+  INPUT_BODY:
+    description: "Body of the issue"
+    required: false
+    default: ""
+  INPUT_LABELS:
+    description: "Comma-separated list of labels"
+    required: false
+    default: ""
+  INPUT_ASSIGNEES:
+    description: "Comma-separated list of assignees"
+    required: false
+    default: ""
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+    INPUT_TITLE: ${{ inputs.INPUT_TITLE }}
+    INPUT_BODY: ${{ inputs.INPUT_BODY }}
+    INPUT_LABELS: ${{ inputs.INPUT_LABELS }}
+    INPUT_ASSIGNEES: ${{ inputs.INPUT_ASSIGNEES }}
+
+branding:
+  icon: 'activity'
+  color: green
