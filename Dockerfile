@@ -13,8 +13,7 @@ WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 
 #Copy locustfile.py
-COPY github_issue.py /app/github_issue.py
-
+COPY manual_approval.py /app/manual_approval.py
 # Install dependencies
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
