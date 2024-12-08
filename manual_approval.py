@@ -4,7 +4,7 @@ import time
 from datetime import datetime, timedelta
 
 # Environment variables
-title = os.getenv('INPUT_TITLE') 
+title = "Manual A for the Workflow" 
 token = os.getenv('GITHUB_TOKEN')
 labels = os.getenv('INPUT_LABELS')
 assignees = os.getenv('INPUT_ASSIGNEES')
