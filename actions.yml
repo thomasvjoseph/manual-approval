@@ -1,4 +1,4 @@
-name: 'Manual Approval'
+name: 'Workflow: Manual Approval'
 description: 'This action will allow you to manually approve an issue by yes or no'
 author: 'Thomas Joseph'
 
@@ -6,13 +6,16 @@ inputs:
   GITHUB_TOKEN:
     description: "Token for authenticating GitHub API"
     required: true
+    default: ${{ secrets.GITHUB_TOKEN }}
   INPUT_TITLE:
     description: "Title of the issue"
     required: true
   INPUT_BODY:
     description: "Body of the issue"
     required: false
-    default: ""
+    default: "Enter the issue approval as yes or no 
+              yes - approve the issue
+              no - reject the issue"
   INPUT_LABELS:
     description: "Comma-separated list of labels"
     required: false
