@@ -6,7 +6,7 @@ inputs:
   GITHUB_TOKEN:
     description: "Token for authenticating GitHub API"
     required: true
-    default: ${{ secrets.GITHUB_TOKEN }}
+    default: ${{ github.token }}
   INPUT_TITLE:
     description: "Title of the issue"
     required: true
