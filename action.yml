@@ -8,7 +8,7 @@ inputs:
     required: true
     default: ${{ github.token }}
   INPUT_TITLE:
-    description: "Title of the issue"
+    description: "Manual A for the Workflow"
     required: true
   INPUT_BODY:
     description: "Body of the issue"
@@ -29,7 +29,6 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   env:
-    GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     INPUT_TITLE: ${{ inputs.INPUT_TITLE }}
     INPUT_BODY: ${{ inputs.INPUT_BODY }}
     INPUT_LABELS: ${{ inputs.INPUT_LABELS }}

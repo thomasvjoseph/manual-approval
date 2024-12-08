@@ -41,10 +41,9 @@ try:
     print(f"Issue created successfully: {issue.html_url}")
 
     # Define timeout for no comments
-    timeout = timedelta(minutes=5)
+    timeout = timedelta(minutes=30)
     start_time = datetime.now()
 
-    print("Monitoring comments on the issue...")
     print("Pending approval. Provide 'yes' or 'no' as a comment on the issue.")
 
     while True:
