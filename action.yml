@@ -10,6 +10,7 @@ inputs:
   INPUT_TITLE:
     description: "Manual A for the Workflow"
     required: true
+    default: "Manual Approval for the Workflow"
   INPUT_BODY:
     description: "Body of the issue"
     required: false
@@ -29,8 +30,6 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   env:
-    INPUT_TITLE: ${{ inputs.INPUT_TITLE }}
-    INPUT_BODY: ${{ inputs.INPUT_BODY }}
     INPUT_LABELS: ${{ inputs.INPUT_LABELS }}
     INPUT_ASSIGNEES: ${{ inputs.INPUT_ASSIGNEES }}
 
