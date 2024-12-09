@@ -45,6 +45,7 @@ runs:
     INPUT_LABELS: ${{ inputs.INPUT_LABELS }}
     INPUT_ASSIGNEES: ${{ inputs.INPUT_ASSIGNEES }}
     INPUT_TIMEOUT: ${{ inputs.INPUT_TIMEOUT }}
+    INPUT_MIN_APPROVERS: ${{ inputs.INPUT_MIN_APPROVERS }}
 
 branding:
   icon: 'activity'
