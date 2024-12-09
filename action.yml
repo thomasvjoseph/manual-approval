@@ -30,6 +30,10 @@ inputs:
     description: "Timeout duration in minutes for the approval process."
     required: false
     default: "10"
+  INPUT_MIN_APPROVERS:
+    description: "Minimum number of approvals required."
+    required: false
+    default: "1"
 
 runs:
   using: 'docker'
