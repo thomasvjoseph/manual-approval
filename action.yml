@@ -29,7 +29,7 @@ inputs:
   INPUT_TIMEOUT:
     description: "Timeout duration in minutes for the approval process."
     required: false
-    default: "10"
+    default: "30"
   INPUT_MIN_APPROVERS:
     description: "Minimum number of approvals required."
     required: false
@@ -45,7 +45,6 @@ runs:
     INPUT_LABELS: ${{ inputs.INPUT_LABELS }}
     INPUT_ASSIGNEES: ${{ inputs.INPUT_ASSIGNEES }}
     INPUT_TIMEOUT: ${{ inputs.INPUT_TIMEOUT }}
-
 
 branding:
   icon: 'activity'

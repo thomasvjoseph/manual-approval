@@ -5,12 +5,12 @@ from github import Github, GithubException
 
 # Environment variables
 token = os.getenv('GITHUB_TOKEN')
-title = os.getenv('INPUT_TITLE', 'Manual Approval')
-labels = os.getenv('INPUT_LABELS', '')
-assignees = os.getenv('INPUT_ASSIGNEES', '')
-body = os.getenv('INPUT_BODY', 'Provide approval as yes or no.')
-timeout_minutes = int(os.getenv('INPUT_TIMEOUT', '5'))  # Default timeout in minutes
-min_approvers = int(os.getenv('INPUT_MIN_APPROVERS', '1'))  # Minimum approvals required
+title = os.getenv('INPUT_TITLE')
+labels = os.getenv('INPUT_LABELS')
+assignees = os.getenv('INPUT_ASSIGNEES')
+body = os.getenv('INPUT_BODY')
+timeout_minutes = int(os.getenv('INPUT_TIMEOUT'))
+min_approvers = int(os.getenv('INPUT_MIN_APPROVERS'))
 
 # Authenticate using GitHub token
 if not token:
