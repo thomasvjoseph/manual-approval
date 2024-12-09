@@ -22,9 +22,6 @@ The action can also be configured to require a minimum number of approvals if mu
 | `INPUT_TIMEOUT`      | Timeout period (in minutes) for waiting for approval. If no comment is received within this time, the issue will be closed. | `30`                   |
 | `INPUT_MIN_APPROVERS`| Minimum number of approvals required to close the issue. Only applicable when there are multiple assignees. | `1`                   |
 
-## Outputs
-
-This action does not produce any direct outputs, but it will close the issue with a success or failure status based on the comments received.
 
 ## Usage
 
@@ -51,7 +48,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Request approval
-        uses: yourusername/manual-approval@v1.0.0
+        uses: yourusername/manual-approval@v1.0.1
         with:
           INPUT_TITLE: "Manual Approval Request"
           INPUT_BODY: "Please approve or reject by commenting 'yes' or 'no'."
