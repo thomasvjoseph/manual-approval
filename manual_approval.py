@@ -4,7 +4,7 @@ import time
 from datetime import datetime, timedelta
 
 # Environment variables
-title = "Manual A for the Workflow" 
+title = 'Manual Approval'
 token = os.getenv('GITHUB_TOKEN')
 labels = os.getenv('INPUT_LABELS')
 assignees = os.getenv('INPUT_ASSIGNEES')
@@ -41,9 +41,10 @@ try:
     print(f"Issue created successfully: {issue.html_url}")
 
     # Define timeout for no comments
-    timeout = timedelta(minutes=30)
+    timeout = timedelta(minutes=5)
     start_time = datetime.now()
 
+    print("Monitoring comments on the issue...")
     print("Pending approval. Provide 'yes' or 'no' as a comment on the issue.")
 
     while True:
