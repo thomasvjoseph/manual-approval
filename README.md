@@ -1,5 +1,7 @@
 # Manual Approval GitHub Action
 
+Hold up the GitHub Actions workflow and request manual confirmation from selected approvers to continue.
+
 This GitHub Action allows you to create an issue on your repository that requires manual approval through comments. Assignees of the issue (or any user if no assignees are set) can approve or reject the issue by commenting `"yes"` or `"no"` on the issue.
 The action can also be configured to require a minimum number of approvals if multiple assignees are set.
 
@@ -15,9 +17,9 @@ The action can also be configured to require a minimum number of approvals if mu
 | ------------------- | ------------------------------------------------------------------------ | --------------------- |
 | `INPUT_TITLE`        | Title of the issue to be created.                                        | `Manual Approval`     |
 | `INPUT_BODY`         | Body of the issue. This should include instructions for users to approve or reject. | `Provide approval as yes or no.` |
-| `INPUT_LABELS`       | A comma-separated list of labels to apply to the issue.                  | `""` (empty)          |
-| `INPUT_ASSIGNEES`    | A comma-separated list of assignees for the issue. If not provided, anyone can approve/reject. | `""` (empty)          |
-| `INPUT_TIMEOUT`      | Timeout period (in minutes) for waiting for approval. If no comment is received within this time, the issue will be closed. | `5`                   |
+| `INPUT_LABELS`       | A comma-separated list of labels to apply to the issue.                  | `""`           |
+| `INPUT_ASSIGNEES`    | A comma-separated list of assignees for the issue. If not provided, anyone can approve/reject. | `""` |
+| `INPUT_TIMEOUT`      | Timeout period (in minutes) for waiting for approval. If no comment is received within this time, the issue will be closed. | `30`                   |
 | `INPUT_MIN_APPROVERS`| Minimum number of approvals required to close the issue. Only applicable when there are multiple assignees. | `1`                   |
 
 ## Outputs
@@ -35,6 +37,10 @@ on:
   push:
     branches:
       - main
+permissions:
+  id-token: write
+  issues: write
+  contents: read
 
 jobs:
   approval:
@@ -42,16 +48,19 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Request approval
-        uses: yourusername/manual-approval@v0.1.0
+        uses: yourusername/manual-approval@v1.0.0
         with:
           INPUT_TITLE: "Manual Approval Request"
           INPUT_BODY: "Please approve or reject by commenting 'yes' or 'no'."
           INPUT_ASSIGNEES: "user1,user2"
           INPUT_MIN_APPROVERS: 1
           INPUT_TIMEOUT: 10
+
+     - name: Run a one-line script
+       run: echo Hello, world!
 
 ```
 
