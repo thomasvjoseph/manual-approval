@@ -26,6 +26,8 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   env:
+    GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+    INPUT_TITLE: ${{ inputs.INPUT_TITLE }}
     INPUT_BODY: ${{ inputs.INPUT_BODY }}
     INPUT_LABELS: ${{ inputs.INPUT_LABELS }}
     INPUT_ASSIGNEES: ${{ inputs.INPUT_ASSIGNEES }}

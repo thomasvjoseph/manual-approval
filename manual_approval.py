@@ -26,7 +26,7 @@ if assignees:
 else:
     assignees = []
 
-# Authenticate using GitHub token
+# Use the GitHub token to authenticate
 github = Github(token)
 repo = github.get_repo(os.getenv('GITHUB_REPOSITORY'))  # Format: "owner/repo"
 
