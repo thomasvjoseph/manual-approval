@@ -5,12 +5,12 @@ from github import Github, GithubException
 
 # Environment variables
 token = os.getenv('GITHUB_TOKEN')
-title = os.getenv('INPUT_TITLE')
-labels = os.getenv('INPUT_LABELS')
+title = os.getenv('INPUT_TITLE', 'Manual Approval')
+labels = os.getenv('INPUT_LABELS', '')
 assignees = os.getenv('INPUT_ASSIGNEES', '')
-body = os.getenv('INPUT_BODY')
+body = os.getenv('INPUT_BODY', 'Provide approval as yes or no.')
 timeout_minutes = int(os.getenv('INPUT_TIMEOUT', '5'))  # Default timeout in minutes
-min_approvers = int(os.getenv('INPUT_MIN_APPROVERS', '1'))  # Minimum approvals required when there are multiple assignees
+min_approvers = int(os.getenv('INPUT_MIN_APPROVERS', '1'))  # Minimum approvals required
 
 # Authenticate using GitHub token
 if not token:
@@ -35,36 +35,33 @@ if assignees:
         else:
             print(f"Warning: '{assignee}' is not a collaborator or has insufficient permissions. Skipping.")
 
-# Ensure all valid assignees are included in the assignment
-if valid_assignees:
-    print(f"Assigning issue to: {', '.join(valid_assignees)}")
-else:
-    print("No valid assignees found. Proceeding without assignment.")
-
-# Determine number of approvals needed
-total_assignees = len(valid_assignees)
-if total_assignees > 1:
-    min_approvers = min(min_approvers, total_assignees)  # Cap min_approvers to the number of assignees
-else:
-    min_approvers = 1  # Default to 1 approval if there is 0 or 1 assignee
-approvals_received = set()
-
 # Create the issue
 try:
     issue = repo.create_issue(
         title=title,
         body=body,
-        labels=[label.strip() for label in labels.split(',') if label.strip()],
-        assignees=valid_assignees  # Assign to all valid assignees
+        labels=[label.strip() for label in labels.split(',') if label.strip()]
     )
     print(f"Issue created successfully: {issue.html_url}")
+
+    # Explicitly assign users
+    if valid_assignees:
+        print(f"Assigning issue to: {', '.join(valid_assignees)}")
+        try:
+            issue.edit(assignees=valid_assignees)
+            print("Issue successfully assigned to all valid assignees.")
+        except GithubException as e:
+            print(f"Error assigning issue to all assignees: {e}")
+    else:
+        print("No valid assignees. Proceeding without assigning.")
 
     # Start monitoring for comments
     timeout = timedelta(minutes=timeout_minutes)
     start_time = datetime.now()
-    print(f"Monitoring comments on the issue. Minimum approvals required: {min_approvers}")
-    print("Only assigned users can approve or deny the issue by commenting 'yes' or 'no'.")
+    print("Monitoring comments on the issue...")
+    print(f"At least {min_approvers} approval(s) required to close the issue.")
 
+    approvals = set()
     while True:
         # Refresh issue details
         issue = repo.get_issue(issue.number)
@@ -75,31 +72,31 @@ try:
             comment_author = comment.user.login
             comment_body = comment.body.lower().strip()
 
-            if total_assignees == 0 or comment_author in valid_assignees:
-                if comment_body == "yes" and comment_author not in approvals_received:
-                    approvals_received.add(comment_author)
-                    print(f"Approval received from '{comment_author}'. Total approvals: {len(approvals_received)}")
-                    issue.create_comment(f"Approval received from '{comment_author}'.")
-                    
-                    if len(approvals_received) >= min_approvers:
-                        print("Minimum approvals met. Closing the issue...")
-                        issue.create_comment("Minimum approvals met. Closing the issue.")
+            if not valid_assignees or comment_author in valid_assignees:
+                if comment_body == "yes":
+                    approvals.add(comment_author)
+                    print(f"Approval received from '{comment_author}'. Total approvals: {len(approvals)}.")
+
+                    if len(approvals) >= min_approvers:
+                        print(f"Minimum approvals met. Closing the issue...")
+                        issue.create_comment(
+                            f"Minimum approvals ({min_approvers}) received. Closing the issue."
+                        )
                         issue.edit(state="closed")
                         exit(0)  # Exit with success status
 
                 elif comment_body == "no":
-                    print(f"Approval denied by '{comment_author}'. Closing the issue...")
-                    issue.create_comment(f"Approval denied by '{comment_author}'. Closing the issue.")
+                    print(f"Rejection received from '{comment_author}'. Closing the issue...")
+                    issue.create_comment(f"Rejection received from '{comment_author}'. Closing the issue.")
                     issue.edit(state="closed")
                     exit(1)  # Exit with failure status
-
             else:
                 print(f"Ignoring comment from non-assigned user '{comment_author}'.")
 
         # Check for timeout
         if datetime.now() - start_time >= timeout:
-            print("No sufficient response within the timeout period. Closing the issue...")
-            issue.create_comment("No sufficient response within the timeout period. Closing the issue.")
+            print("No response within the timeout period. Closing the issue...")
+            issue.create_comment("No response within the timeout period. Closing the issue.")
             issue.edit(state="closed")
             exit(1)  # Exit with failure status
 
