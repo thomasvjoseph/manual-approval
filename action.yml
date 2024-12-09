@@ -21,7 +21,7 @@ inputs:
   INPUT_LABELS:
     description: "Comma-separated list of labels for the issue."
     required: false
-    default: "approval-pending"
+    default: "yes,no"
   INPUT_ASSIGNEES:
     description: "Comma-separated list of assignees for the issue."
     required: false
