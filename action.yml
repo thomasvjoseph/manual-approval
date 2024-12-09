@@ -1,24 +1,29 @@
 name: 'Workflow: Manual Approval'
-description: 'This action will allow you to manually approve an issue by yes or no'
+description: 'This action allows manual approval of a workflow by commenting "yes" or "no" on an issue.'
 author: 'Thomas Joseph'
 
 inputs:
   GITHUB_TOKEN:
-    description: "Token for authenticating GitHub API"
+    description: "GitHub token for API authentication."
     required: true
     default: ${{ github.token }}
+  INPUT_TITLE:
+    description: "Title of the issue."
+    required: true
+    default: "Manual Approval for the Workflow"
   INPUT_BODY:
-    description: "Body of the issue"
+    description: "Body content of the issue."
     required: false
-    default: "Enter the issue approval as yes or no 
-              yes - approve the issue
-              no - reject the issue"
+    default: |
+      Provide your approval:
+      - Comment "yes" to approve.
+      - Comment "no" to reject.
   INPUT_LABELS:
-    description: "Comma-separated list of labels"
+    description: "Comma-separated list of labels for the issue."
     required: false
-    default: ""
+    default: "approval-pending"
   INPUT_ASSIGNEES:
-    description: "Comma-separated list of assignees"
+    description: "Comma-separated list of assignees for the issue."
     required: false
     default: ""
 
@@ -34,4 +39,4 @@ runs:
 
 branding:
   icon: 'activity'
-  color: green
+  color: 'green'
