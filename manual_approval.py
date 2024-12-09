@@ -48,7 +48,10 @@ try:
     timeout = timedelta(minutes=timeout_minutes)
     start_time = datetime.now()
     print("Monitoring comments on the issue...")
-    print("Only assigned users can approve or deny the issue by commenting 'yes' or 'no'.")
+    if valid_assignees:
+        print("Only assigned users can approve or deny the issue by commenting 'yes' or 'no'.")
+    else:
+        print("Anyone can approve or deny the issue by commenting 'yes' or 'no'.")
 
     while True:
         # Refresh issue details
@@ -60,7 +63,23 @@ try:
             comment_author = comment.user.login
             comment_body = comment.body.lower().strip()
 
-            if comment_author in valid_assignees:
+            if valid_assignees:
+                # Only assigned users can approve or deny
+                if comment_author in valid_assignees:
+                    if comment_body == "yes":
+                        print(f"Approval received from '{comment_author}'. Closing the issue...")
+                        issue.create_comment(f"Approval received from '{comment_author}'. Closing the issue.")
+                        issue.edit(state="closed")
+                        exit(0)  # Exit with success status
+                    elif comment_body == "no":
+                        print(f"Approval denied by '{comment_author}'. Closing the issue...")
+                        issue.create_comment(f"Approval denied by '{comment_author}'. Closing the issue.")
+                        issue.edit(state="closed")
+                        exit(1)  # Exit with failure status
+                else:
+                    print(f"Ignoring comment from non-assigned user '{comment_author}'.")
+            else:
+                # Any user can approve or deny
                 if comment_body == "yes":
                     print(f"Approval received from '{comment_author}'. Closing the issue...")
                     issue.create_comment(f"Approval received from '{comment_author}'. Closing the issue.")
@@ -71,17 +90,15 @@ try:
                     issue.create_comment(f"Approval denied by '{comment_author}'. Closing the issue.")
                     issue.edit(state="closed")
                     exit(1)  # Exit with failure status
-            else:
-                print(f"Ignoring comment from non-assigned user '{comment_author}'.")
 
         # Check for timeout
         if datetime.now() - start_time >= timeout:
-            print("No response from assignees within the timeout period. Closing the issue...")
-            issue.create_comment("No response from assignees within the timeout period. Closing the issue.")
+            print("No response within the timeout period. Closing the issue...")
+            issue.create_comment("No response within the timeout period. Closing the issue.")
             issue.edit(state="closed")
             exit(1)  # Exit with failure status
 
-        print("Awaiting response from assigned users... Retrying in 10 seconds.")
+        print("Awaiting response... Retrying in 10 seconds.")
         time.sleep(10)
 
 except GithubException as e:
