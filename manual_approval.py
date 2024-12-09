@@ -1,50 +1,54 @@
 import os
 import time
 from datetime import datetime, timedelta
-from github import Github
+from github import Github, GithubException
 
 # Environment variables
-title = os.getenv('INPUT_TITLE')
 token = os.getenv('GITHUB_TOKEN')
-labels = os.getenv('INPUT_LABELS')
-assignees = os.getenv('INPUT_ASSIGNEES')
-body = os.getenv('INPUT_BODY')
-validate_assignees = os.getenv('INPUT_VALIDATE_ASSIGNEES', 'false').lower() == 'true'
+title = os.getenv('INPUT_TITLE', 'Manual Approval')
+labels = os.getenv('INPUT_LABELS', '')
+assignees = os.getenv('INPUT_ASSIGNEES', '')
+body = os.getenv('INPUT_BODY', 'Provide approval as yes or no.')
+timeout_minutes = int(os.getenv('INPUT_TIMEOUT', '5'))  # Default timeout in minutes
 
-# Validate GitHub token
+# Authenticate using GitHub token
 if not token:
     raise ValueError("GitHub token is missing. Set 'GITHUB_TOKEN' as an environment variable.")
 
-# Validate title
-if not title.strip():
-    raise ValueError("Title is missing. Please provide a valid title for the issue.")
-
-# Process labels and assignees
-labels = [label.strip() for label in labels.split(',') if label.strip()]
-assignees = [assignee.strip() for assignee in assignees.split(',') if assignee.strip()]
-
-# Authenticate using GitHub token
 try:
     github = Github(token)
     repo = github.get_repo(os.getenv('GITHUB_REPOSITORY'))  # Format: "owner/repo"
-except Exception as e:
-    raise ValueError(f"Failed to authenticate with GitHub. Error: {e}")
+except GithubException as e:
+    raise ValueError(f"Failed to authenticate or access repository. Error: {e}")
+
+# Process assignees
+assignees = [assignee.strip() for assignee in assignees.split(',') if assignee.strip()]
+valid_assignees = []
+
+if assignees:
+    print("Validating assignees...")
+    repo_collaborators = [collaborator.login for collaborator in repo.get_collaborators()]
+    for assignee in assignees:
+        if assignee in repo_collaborators:
+            valid_assignees.append(assignee)
+        else:
+            print(f"Warning: '{assignee}' is not a collaborator or has insufficient permissions. Skipping.")
 
 # Create the issue
 try:
     issue = repo.create_issue(
         title=title,
         body=body,
-        labels=labels,
-        assignees=assignees
+        labels=[label.strip() for label in labels.split(',') if label.strip()],
+        assignees=valid_assignees
     )
     print(f"Issue created successfully: {issue.html_url}")
 
-    # Monitoring for comments
-    timeout = timedelta(minutes=5)
+    # Start monitoring for comments
+    timeout = timedelta(minutes=timeout_minutes)
     start_time = datetime.now()
     print("Monitoring comments on the issue...")
-    print("Pending approval. Provide 'yes' or 'no' as a comment on the issue.")
+    print("Only assigned users can approve or deny the issue by commenting 'yes' or 'no'.")
 
     while True:
         # Refresh issue details
@@ -56,33 +60,30 @@ try:
             comment_author = comment.user.login
             comment_body = comment.body.lower().strip()
 
-            # If assignee validation is enabled, validate the author
-            if validate_assignees and comment_author not in assignees:
+            if comment_author in valid_assignees:
+                if comment_body == "yes":
+                    print(f"Approval received from '{comment_author}'. Closing the issue...")
+                    issue.create_comment(f"Approval received from '{comment_author}'. Closing the issue.")
+                    issue.edit(state="closed")
+                    exit(0)  # Exit with success status
+                elif comment_body == "no":
+                    print(f"Approval denied by '{comment_author}'. Closing the issue...")
+                    issue.create_comment(f"Approval denied by '{comment_author}'. Closing the issue.")
+                    issue.edit(state="closed")
+                    exit(1)  # Exit with failure status
+            else:
                 print(f"Ignoring comment from non-assigned user '{comment_author}'.")
-                continue
-
-            # Process valid comments
-            if comment_body == "yes":
-                print(f"Approval received from '{comment_author}'. Proceeding with the workflow...")
-                issue.create_comment(f"Approval received from '{comment_author}'. Closing the issue.")
-                issue.edit(state="closed")
-                exit(0)  # Exit with success status to continue the workflow
-            elif comment_body == "no":
-                print(f"Approval denied by '{comment_author}'. Stopping the workflow...")
-                issue.create_comment(f"Approval denied by '{comment_author}'. Closing the issue.")
-                issue.edit(state="closed")
-                exit(1)  # Exit with failure status to stop the workflow
 
         # Check for timeout
         if datetime.now() - start_time >= timeout:
-            print("No response within the timeout. Stopping the workflow...")
-            issue.create_comment("No response within the timeout. Closing the issue.")
+            print("No response from assignees within the timeout period. Closing the issue...")
+            issue.create_comment("No response from assignees within the timeout period. Closing the issue.")
             issue.edit(state="closed")
-            exit(1)
+            exit(1)  # Exit with failure status
 
-        print("Awaiting approval... Retrying in 10 seconds.")
+        print("Awaiting response from assigned users... Retrying in 10 seconds.")
         time.sleep(10)
 
-except Exception as e:
-    print(f"An error occurred: {e}")
+except GithubException as e:
+    print(f"Error while creating or managing the issue: {e}")
     raise

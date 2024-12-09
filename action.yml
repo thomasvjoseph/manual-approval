@@ -26,6 +26,10 @@ inputs:
     description: "Comma-separated list of assignees for the issue."
     required: false
     default: ""
+  INPUT_TIMEOUT:
+    description: "Timeout duration in minutes for the approval process."
+    required: false
+    default: "10"
 
 runs:
   using: 'docker'
@@ -36,6 +40,8 @@ runs:
     INPUT_BODY: ${{ inputs.INPUT_BODY }}
     INPUT_LABELS: ${{ inputs.INPUT_LABELS }}
     INPUT_ASSIGNEES: ${{ inputs.INPUT_ASSIGNEES }}
+    INPUT_TIMEOUT: ${{ inputs.INPUT_TIMEOUT }}
+
 
 branding:
   icon: 'activity'
