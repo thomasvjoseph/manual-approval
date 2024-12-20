@@ -48,7 +48,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Request approval
-        uses: yourusername/manual-approval@v1.0.1
+        uses: thomasvjoseph/manual-approval@v1.0.1
         with:
           INPUT_TITLE: "Manual Approval Request"
           INPUT_BODY: "Please approve or reject by commenting 'yes' or 'no'."
